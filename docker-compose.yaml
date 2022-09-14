@@ -1,0 +1,50 @@
+version: '3.9'
+
+services:
+  mongo:
+    image: mongo
+    container_name: mongo
+    restart: always
+    environment:
+      - TZ=Australia/Perth
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=example
+    ports:
+      - 27017:27017
+
+  scraper:
+    build:
+      context: ./scraper
+    container_name: scraper
+    restart: always
+    depends_on:
+      - mongo
+    environment:
+      - TZ=Australia/Perth
+      - ORG_NAME=ExampleOrg
+      - FEED_ID=ExampleFeedId
+      - PAT=ExampleDevOpsPAT
+      - FALLBACK_AUTHOR=Fallback Author
+      - REFRESH=900
+      - MONGO_HOST=mongo
+      - MONGO_PORT=27017
+      - MONGO_USER=root
+      - MONGO_PASS=example
+      - MONGO_DB=devops
+
+  proxy:
+    build:
+      context: ./proxy
+    container_name: proxy
+    restart: always
+    depends_on:
+      - scraper
+    environment:
+      - TZ=Australia/Perth
+      - MONGO_HOST=mongo
+      - MONGO_PORT=27017
+      - MONGO_USER=root
+      - MONGO_PASS=example
+      - MONGO_DB=devops
+    ports:
+      - 8080:8080

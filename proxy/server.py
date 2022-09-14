@@ -51,7 +51,7 @@ def package_route(package_name: str):
     Returns all info (incl. versions) about a specific package from Mongo
     """
 
-    mongo_package = db.packages_collection.find_one({"name": package_name})
+    mongo_package = db.packages.find_one({"name": package_name})
 
     if mongo_package is None:
         return make_response(jsonify(error="Not found"), 404)
@@ -127,7 +127,7 @@ def all_packages_route():
 
     all_packages = OrderedDict({"_updated": int(time.time())})
 
-    mongo_packages = db.packages_collection.find()
+    mongo_packages = db.packages.find()
 
     for mongo_package in mongo_packages:
         try:
